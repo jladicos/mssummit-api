@@ -18,7 +18,20 @@ app.get('/', (req, res) => {
 })
 
 app.get('/createApp/:name', (req, res) => {		
-	
+	const session = enigma.create({
+		url: 'ws://localhost:19076/app/engine/data',
+		schema,
+		createSocket: url => {
+			return new ws(url)
+		}
+	})
+
+	session.open().then(global => {
+		console.log(global);
+		global.createApp(req.params.name)
+	}, err => {
+		console.log(err);
+	})
 })
 
 app.get('/*', (req, res) => {

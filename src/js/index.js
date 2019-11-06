@@ -1,5 +1,7 @@
 import * as styles from '../less/main.less'
 import { request } from 'http'
+import enigma from 'enigma.js'
+import schema from './qlikSchema'
 
 window.navController
 
@@ -36,3 +38,16 @@ function getRequest (url) {
 		xhr.send()
 	})
 }
+
+const session = enigma.create({
+	url: 'ws://localhost:19076/app/ramen',
+	schema
+})
+
+session.open().then(global => {
+	console.log(global);
+	//put in the app_id here instead of ramen.qvf for real app
+	global.openDoc('ramen.qvf').then(app =>{
+		console.log(app);
+	}) 
+})
