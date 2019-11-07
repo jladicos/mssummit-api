@@ -1,3 +1,6 @@
+/***
+ * This is Server Side JS in Node to Handle the Request
+ */
 const express = require('express')
 const app = express()
 const ws = require('ws')
@@ -21,6 +24,7 @@ app.get('/createApp/:name', (req, res) => {
 	const session = enigma.create({
 		url: 'ws://localhost:19076/app/engine/data',
 		schema,
+		mixins: enigmaMixin,
 		createSocket: url => {
 			return new ws(url)
 		}
@@ -29,6 +33,14 @@ app.get('/createApp/:name', (req, res) => {
 	session.open().then(global => {
 		console.log(global);
 		global.createApp(req.params.name)
+		const h = new halyard()
+		h.addTable('/data/ramen-ratings.csv', 'Ratings')
+		global.createAppUsingHalyard(req.params.name, h).then(result => {
+			result.getScript().then(script => {
+				console.log(script);
+			})
+		})
+		session.close()
 	}, err => {
 		console.log(err);
 	})

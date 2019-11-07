@@ -40,14 +40,31 @@ function getRequest (url) {
 }
 
 const session = enigma.create({
-	url: 'ws://localhost:19076/app/ramen',
+	url: 'ws://localhost:19076/app/engineData',
 	schema
 })
 
 session.open().then(global => {
 	console.log(global);
-	//put in the app_id here instead of ramen.qvf for real app
-	global.openDoc('ramen.qvf').then(app =>{
-		console.log(app);
-	}) 
+	global.getDocList().then(docs => {
+		console.log(docs);
+		global.openDoc('ramen.qvf').then(app=>{
+			const def = {
+				qInfo: {
+					qType:'mycustomobject'
+				},
+				name: 'blah blah',
+				myCustomProp1:[
+					{qStringExpression: `='There are ' & Count(DISTINCT Country) & ' countries'`}
+				]
+			}
+
+			app.createSessionObject(def).then(model=>{
+				console.log(model);
+				model.getLayout().then(layout => {
+					console.log(layout);
+				})
+			})
+		})
+	})
 })
