@@ -56,13 +56,44 @@ session.open().then(global => {
 				name: 'blah blah',
 				myCustomProp1:[
 					{qStringExpression: `='There are ' & Count(DISTINCT Country) & ' countries'`}
-				]
+				],
+				qListObjectDef: {
+					qDef: {
+						qFieldDefs: ['Country']
+					},
+					qInitialDataFetch: [{qTop: 0, qLeft: 0, qWidth: 1, qHeight: 10000}]
+				},
+				myCusotmCube: {
+					qHyperCubeDef: {
+						qDimensions:[
+							{
+								qDef: {
+									qFieldDefs: ['Country', 'Style']
+								}
+							}
+						],
+						qMeasures: [
+							{
+								qDef: {
+									qDef: `Avg(Stars)`
+								}
+							}
+						],
+						qInitialDataFetch: [{qTop: 0, qLeft: 0, qWidth: 3, qHeight: 30}]
+					}
+				}
 			}
 
 			app.createSessionObject(def).then(model=>{
 				console.log(model);
 				model.getLayout().then(layout => {
 					console.log(layout);
+					model.getHyperCubeData(
+						'/myCusotmCube/qHyperCubeDef', 
+						[{qTop: 100, qLeft: 0, qWidth: 3, qHeight: 30}]
+					).then(pages => {
+						console.log(pages);
+					})
 				})
 			})
 		})
