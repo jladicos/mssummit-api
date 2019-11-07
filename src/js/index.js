@@ -2,6 +2,7 @@ import * as styles from '../less/main.less'
 import { request } from 'http'
 import enigma from 'enigma.js'
 import schema from './qlikSchema'
+import {Bar} from './bar'
 
 window.navController
 
@@ -125,6 +126,15 @@ session.open().then(global => {
                 }]
                 model.applyPatches(patchDefs)
             })
-        })
+		})
+		
+
+		const bar = new Bar({
+			node: document.getElementById("sandbox"),
+			height: 400,
+			width: 500
+			
+		})
+
     })
 })
