@@ -1,28 +1,50 @@
 import * as d3 from 'd3'
 
 class Bar {
-    constructor(options) {
-        /**
-         * model: enigma model with a HyperCube to render
-         * node: DOM element to render into
-         */
+    constructor (options) {        
         this.model = options.model
-        this.node = options.node
-        this.width = options.width 
-        this.height = options.height
+        this.elementId = options.elementId
+        this.attached = true
+        this.model.on('changed', this.render.bind(this))
         this.render()
     }
-
-    render() {
-        const node = d3.select(this.node)
-        
-        const svg = node
-        .append("svg")
-        .attr("width", this.width)
-        .attr("height", this.height)
-        .style("border", "1px solid black")
-        
+    render () {
+        if (this.attached === false) {
+            return
+        }    
+        this.model.getLayout().then(layout => {
+            this.margin = { bottom: 100, left: 50 }
+            let el = document.getElementById(this.elementId)
+            el.innerHTML = ''
+            if (el) {
+                this.width = el.clientWidth
+                this.height = el.clientHeight
+                const svg = d3.select(el).append('svg').attr('width', this.width).attr('height', this.height)
+                this.xArea = svg.append('g')                
+                    .attr('transform', `translate(${this.margin.left},${this.height - this.margin.bottom})`)
+                this.yArea = svg.append('g')                
+                    .attr('transform', `translate(${this.margin.left},0)`)
+                this.barArea = svg.append('g').attr('class', 'bar-chart')
+                    .attr('transform', `translate(${this.margin.left},0)`)
+                let xScale = d3.scaleBand()
+                                .range([0, this.width - this.margin.left])
+                                .domain(layout.qHyperCube.qDataPages[0].qMatrix.map(r => r[0].qText))
+                let yScale = d3.scaleLinear()
+                                .range([this.height - this.margin.bottom, 0]).domain([layout.qHyperCube.qMeasureInfo[0].qMin, layout.qHyperCube.qMeasureInfo[0].qMax])              
+                this.xArea.call(d3.axisBottom(xScale))
+                this.yArea.call(d3.axisLeft(yScale))
+                this.barArea.selectAll('.bar')
+                            .data(layout.qHyperCube.qDataPages[0].qMatrix)
+                            .enter().append('rect').attr('class', 'bar')        
+                            .attr('width', (this.width / layout.qHyperCube.qDataPages[0].qArea.qHeight) - 30)    
+                            .attr('x', d => xScale(d[0].qText) + 15)
+                            .attr('y', d => yScale(d[1].qNum))    
+                            .attr('height', d => this.height - this.margin.bottom - yScale(d[1].qNum))
+                            .style('fill', '#ffaa00')
+                            .on('click', d => this.model.selectHyperCubeValues('/qHyperCubeDef', 0, [d[0].qElemNumber], true))
+            }
+        })
     }
 }
 
-export { Bar };
+export { Bar}

@@ -128,13 +128,45 @@ session.open().then(global => {
             })
 		})
 		
+		const barCubeDef = {
+			qInfo: {
+				qType: "bar"
+			},
+			qHyperCubeDef: {
+				qDimensions: [
+					{
+						qDef: {
+							qFieldDefs: ["Style"]
+						}
+					}
+				],
+				qMeasures: [
+					{
+						qDef:{
+							qDef:"=avg(Stars)"
+						}
+					}
+				],
+				qInitialDataFetch: [
+					{
+						qTop: 0,
+						qLeft: 0,
+						qWidth: 2,
+						qHeight: 1000
+					}
+				]
+			}
+		};
 
-		const bar = new Bar({
-			node: document.getElementById("sandbox"),
-			height: 400,
-			width: 500
-			
-		})
+		app.createSessionObject(barCubeDef).then(model=>{
+			const bar = new Bar({
+				elementId: "sandbox",
+				height: 400,
+				width: 500,
+				model: model,
+			})	
+		});
 
+		
     })
 })
